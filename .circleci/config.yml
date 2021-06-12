@@ -77,32 +77,32 @@ jobs:
             ls -al
             ls -al ~
       - run: 
-          name: job4 ls ~/cache before save_cache
+          name: job4 ls ./cache before save_cache
           command: |
             pwd
-            ls -al ~/cache      
+            ls -al ./cache      
       - save_cache:
           key: key-{{ .Branch }}-{{ .BuildNum }}-{{ .Revision }}-{{ .CheckoutKey }}-{{ .Environment.variableName }}-{{ epoch }}-{{ arch }}
           paths:
-            - ~/cache
+            - ./cache
       - run: 
-          name: job4 ls ~/cache after cache
+          name: job4 ls ./cache after cache
           command: |
             pwd
-            ls -al ~/cache
-      - run: rm -f ~/cache
+            ls -al ./cache
+      - run: rm -f ./cache
       - run: 
-          name: job4 ls ~/cache after rm ~/cache
+          name: job4 ls ./cache after rm ./cache
           command: |
             pwd
-            ls -al ~/cache
+            ls -al ./cache
       - restore_cache:
           key: v1-myapp-cache
       - run: 
-          name: job4 ls ~/cache after restore_cache
+          name: job4 ls ./cache after restore_cache
           command: |
             pwd
-            ls -al ~/cache
+            ls -al ./cache
   job5:
     docker:
       - image: circleci/golang:1.12
