@@ -35,9 +35,14 @@ jobs:
   job2:
     docker:
       - image: circleci/golang:1.12
+    working_directory: ./working_dir/wd_1
+    parallelism: 3
+    environment:
+      FOO: bar
+      KEY: omg
     steps:
       - run: 
-          name: job2 command
+          name: ls -al working_directory
           command: |
             pwd
             ls -al
