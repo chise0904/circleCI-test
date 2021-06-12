@@ -119,10 +119,7 @@ jobs:
 
       - run: ls -al /tmp/workspace
 
-  job7:
-    
-    
-    working_directory: 
+
 
 workflows:
   flow1:
