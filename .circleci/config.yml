@@ -48,13 +48,20 @@ jobs:
       custom_parameter:
         type: string
         default: ""
+      custom_parameter2:
+        type: string
+        default: "hello world"
     steps:
       - run: 
-          name: job3 command
+          name: print parameters
           command: |
-            pwd
-            ls -al
+            echo <<parameters.custom_parameter>>
+            echo <<parameters.custom_parameter2>>
       - when: 
+          condition: <<parameters.custom_parameter>>
+          steps:
+          - run: echo <<parameters.custom_parameter>>
+      - unless:
           condition: <<parameters.custom_parameter>>
           steps:
           - run: echo <<parameters.custom_parameter>>
@@ -169,7 +176,7 @@ workflows:
         requires:
         - job2
     - job3:
-        custom_parameter: "hello world"
+        custom_parameter: "hello kitty"
         requires:
         - job1
         - job2
@@ -179,6 +186,8 @@ workflows:
     jobs:
     - job5
     - job6
+        requires:
+        - job1
 
 
   flow6:
