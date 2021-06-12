@@ -1,0 +1,185 @@
+version: 2.1
+
+
+jobs:
+  job1:
+    docker:
+      - image: circleci/golang:1.12
+
+    steps:
+      - run: 
+          name: pre checkout
+          command: |
+            pwd
+            ls -al
+      - checkout
+      - run:
+          name: Post checkout
+          command: |
+            pwd
+            ls -al
+      - run:
+          name: pipeline example
+          command: |
+            echo pipeline.id <<pipeline.id>>
+            echo pipeline.number <<pipeline.number>>
+            echo pipeline.project.git_url <<pipeline.project.git_url>>
+            echo pipeline.project.type <<pipeline.project.type>>
+            echo pipeline.git.tag <<pipeline.git.tag>>
+            echo pipeline.git.branch <<pipeline.git.branch>>
+            echo pipeline.git.revision <<pipeline.git.revision>>
+            echo pipeline.git.base_revision <<pipeline.git.base_revision>>
+  job2:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - run: 
+          name: job2 command
+          command: |
+            pwd
+            ls -al
+  job3:
+    docker:
+      - image: circleci/golang:1.12
+    parameters:
+      custom_parameter:
+        type: string
+        default: ""
+    steps:
+      - run: 
+          name: job3 command
+          command: |
+            pwd
+            ls -al
+      - when: 
+          condition: <<parameters.custom_parameter>>
+          steps:
+          - run: echo <<parameters.custom_parameter>>
+  job4:
+    docker:
+      - image: circleci/golang:1.12
+
+    steps:
+      - run: 
+          name: pwd & ls -al pwd & ls -al home dir
+          command: |
+            pwd
+            ls -al
+            ls -al ~
+      - run: 
+          name: job4 ls ~/cache before save_cache
+          command: |
+            pwd
+            ls -al ~/cache      
+      - save_cache:
+          key: key-{{ .Branch }}-{{ .BuildNum }}-{{ .Revision }}-{{ .CheckoutKey }}-{{ .Environment.variableName }}-{{ epoch }}-{{ arch }}
+          paths:
+            - ~/cache
+      - run: 
+          name: job4 ls ~/cache after cache
+          command: |
+            pwd
+            ls -al ~/cache
+      - run: rm -f ~/cache
+      - run: 
+          name: job4 ls ~/cache after rm ~/cache
+          command: |
+            pwd
+            ls -al ~/cache
+      - restore_cache:
+          key: v1-myapp-cache
+      - run: 
+          name: job4 ls ~/cache after restore_cache
+          command: |
+            pwd
+            ls -al ~/cache
+  job5:
+    docker:
+      - image: circleci/golang:1.12
+
+    steps:
+      - run: echo start persist_to_workspace
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - ws1/ws1-1
+            - ws2
+
+  job6:
+    docker:
+      - image: circleci/golang:1.12
+
+    steps:
+      - run: echo start attach_workspace
+      - attach_workspace:
+          at: /tmp/new_workspace
+
+      - run: ls -al /tmp/workspace
+
+
+workflows:
+  flow1:
+    jobs:
+    - job2
+    - job1
+    - job4
+    - job3
+
+  flow2:
+    jobs:
+    - job2:
+        filters:
+          branches:
+            only:
+              - main
+              - dev
+              - hotfix
+    - job1
+    - job4
+    - job3
+
+  flow3:
+    jobs:
+    - job2:
+        type: approval
+    - job1:
+        requires:
+        - job2
+    - job4:
+        requires:
+        - job2
+    - job3:
+        requires:
+        - job1
+        - job2
+        - job4
+
+  flow4:
+    jobs:
+    - job2:
+        type: approval
+    - job1:
+        requires:
+        - job2
+    - job4:
+        requires:
+        - job2
+    - job3:
+        custom_parameter: "hello world"
+        requires:
+        - job1
+        - job2
+        - job4
+
+  flow5:
+    jobs:
+    - job5
+    - job6
+
+
+  flow6:
+    jobs:
+    - job2
+    - job1
+    - job4
+    - job3
