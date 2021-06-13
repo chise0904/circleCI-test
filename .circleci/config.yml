@@ -46,6 +46,8 @@ jobs:
           command: |
             pwd
             ls -al
+            ls /
+            ls ~
   job3:
     docker:
       - image: circleci/golang:1.12
